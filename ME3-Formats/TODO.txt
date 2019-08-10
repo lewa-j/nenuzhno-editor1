@@ -1,0 +1,157 @@
+
+lightmap
+type 3,4
+{
+bridge:
+Object 335: exp 1748 StaticMeshActor(StaticMeshActor)
+smc: lightmapType 3 (2350)
+Object 336: exp 1750 StaticMeshActor(StaticMeshActor)
+smc: lightmapType 3 (2351)
+}
+bump *
+tfc system
+back face cull
+transparent
+cubemap
+smc: Rotation
+skining *
+AnimSequence
+AnimSet
+MorphTarget
+
+BrushComponent
+InterpActor
+StaticLightCollectionActor
+Prefab
+BioWorldInfo
+LensFlareSource
+CameraActor
+SkeletalMeshActor
+SFXStuntActor
+
+MSK3 Red- Spec Green - Emis/Relfc Blue -Sppwr
+{
+CIC:
+mesh Holomod_04
+	Screen_01_Ins2 mic no diffuse
+	Holomod_04_Graph_Ins mic no diffuse
+obj 47 mesh GUI_Level_Terminal02
+	GetSMC: export 2147, mats count != mesh mats count (3, 2) - 3 is 0
+mesh Nor_WalkwayEdge_Ramp_01
+	Nor_Light01_On1 - ref texs ok
+GetSMC: export 2175, mats count != mesh mats count (3, 2) - 3 is 0
+GetSMC: export 2173, mats count != mesh mats count (4, 1) - all the same
+Nor_Light01_On2 - ref texs ok
+MM_GUIMaster_Lit_INST no diffuse - TextGUI_Sheet
+Nor_Emissive01_Inst01 no diffuse - TextGUI_Sheet1
+WhiteBox_Emissive04_MAT
+Nor_Glass_MM_INST no diffuse
+smc prop 5: HiddenGame 8 1
+smc prop 7: bCastHiddenShadow 8 1
+mesh Nor_Txt_Deck_01
+	Light04 Diffuse not founds. Used -250 MM_CUBEMAP_SET_A
+Tech_Inset_MM_INST01 - ref texs ok
+mesh WB_WarTubeCluster
+	LD_hose_01
+mesh Nor_LightFixture_02
+	Light08
+	Wall02_Inst05
+	Light01 used cubemap!
+mesh Wire_Multiple_01
+	LevelDetails_Wires_MM_INST01 - ref texs ok
+mesh CMP_Swivel_L_01
+	LD_Metal_01 - ref texs ok
+mesh H_Graphtype_01
+	Hologram_Graphtype_05_Orange_SM
+	Hologram_Graphtype_01_Orange_SM
+	Hologram_Keyboard_Orange_SM
+	Hologram_Graphtype_04_SM
+Nor_BaySupport_A
+	Mesh: verts 2945, inds 0, version 18, lods 1, mats 3
+many Volumetric_Plane01
+	Sticker02
+	Warning2Sticker012
+	Sticker11
+LevelDetails_Wires_MM_DeSat - ref texs ok
+Light01_ComRoom_Inst mic no diffuse
+mesh Nor_MapTable_Base
+	LD_Metal_04 - ref texs ok
+}
+
+Building_Deco_01
+Building_Deco_02
+WB_Mid_A
+
+White_Panel_Blend01+
+WB_Ocean2
+WB_Material_01+
+Vista_Building_Face -expressions Diffuse
+Low_Building_Windows_Inst01_INSTxx -parrent
+HoverCar01_MAT
+EarthVista_Mat01
+Vista_Building_Face_INST_Temp_Dark
+Vista_Building_Face_INST02
+WB_Glass_Material_Shake_INST
+LD_Metal_Girder_Yellow
+Matte_Master
+680 Earth -Base_Sky_IMG
+Smoke_Card_new
+Smoke_Card_new_INST
+LD_Metal_Ceiling
+
+Object 26 - Smoke
+Object 29 - strange planes
+{
+	Object 29: exp 2160 StaticMeshCollectionActor(StaticMeshCollectionActor)
+	GetStaticMeshCollectionActor: objectsCount 58
+	GetStaticMesh: export 2043 name: Volumetric_Plane01, data: len 443, offs 4580118
+	GetMaterial: export 343 name: Atmospheric_Mist, class: Material, data: len 496, offs 2325770
+	GetMaterial: Diffuse not founds. Used 2886 Cloud_msk01
+	GetTexture: export 2885 name: Cloud_msk01, class: Texture2D, data: len 1300, offs 10641998
+	GetMaterial: export 344 name: Atmospheric_Mist02, class: Material, data: len 492, offs 2326266
+	GetMaterial: Diffuse not founds. Used -158 Spec_HS_C
+	GetStaticMesh: export 2083 name: Building_Slope_01, data: len 31897, offs 6081743
+	GetMaterial: export 725 name: White_Panel_Gen_01_Damagedxx, class: MaterialInstanceConstant, data: len 4175, offs 2559762
+	GetStaticMesh: export 2109 name: Shipping_Crate01, data: len 1258, offs 6451988
+	GetStaticMesh: export 2090 name: Girder01_Shell, data: len 10358, offs 6226156
+}
+
+
+Sticker04, class: MaterialInstanceConstant
+prop 0: name ScalarParameterValues, type ArrayProperty, size 700
+prop 2: name Parent, type ObjectProperty, size 4
+prop 3: name bHasStaticPermutationResource, type BoolProperty, size 0
+
+407. Hologram_Graphtype_02_Cyan_V1
+param name Texture_Name, tex -142 H_texts
+
+409. Hologram_Keyboard_Cyan_SM
+tex 0: -145 sfx_holo-test_videolines
+tex 1: -143 holo-test_distortion_alpha
+tex 2: 2847 fx_Distort
+tex 3: -140 H_keyboard_tex
+
+
+471 name: LD_Metal_Girder_Yellow2
+
+security:
+67 name: Light01, class: Material, data: len 470, offs 236299
+GetMaterial: Diffuse not founds. Used -178 MM_CUBEMAP_SET_A
+596 name: Wall_Scuff_01, class: MaterialInstanceConstant, data: len 752, offs 377816
+GetMaterial MIC: Diffuse not found: props 7, texParams 1
+66 name: Glass01, class: Material, data: len 549, offs 235750
+GetMaterial: Diffuse not founds. Used -178 MM_CUBEMAP_SET_A
+76 name: Masked, class: Material, data: len 450, offs 242641
+GetMaterial: no referencedTextures
+75 name: Hologram_Wall_Screen, class: Material, data: len 727, offs 241914
+GetMaterial: Diffuse not founds. Used -140 H_texts
+599 name: WeaponTableExtras_INST, class: MaterialInstanceConstant, data: len 2149, offs 379820
+GetMaterial MIC: Diffuse not found: props 8, texParams 2
+573 name: LD_Metal_01, class: MaterialInstanceConstant, data: len 2141, offs 333788
+GetMaterial MIC: Diffuse not found: props 9, texParams 2
+61 name: LD_Hardsurfaces_MM, class: Material, data: len 1418, offs 230481
+GetMaterial: Diffuse not founds. Used -112 LD_Hardsurfaces_Norm
+578 name: WPN_ASLa_Mat_1a, class: MaterialInstanceConstant, data: len 984, offs 341889
+GetMaterial MIC: Diffuse not found: props 7, texParams 4
+
+

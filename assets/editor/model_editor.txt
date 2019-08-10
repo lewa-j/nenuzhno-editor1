@@ -1,0 +1,5 @@
+size 0.4
+in sship1
+out sship1
+meshMat light
+

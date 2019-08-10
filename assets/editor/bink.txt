@@ -1,0 +1,9 @@
+upload 1
+decode 1
+skipping 0
+scaling 1
+file Movies/ProEar_Intro_Pt8.bik
+#file Movies/ME3_sig_logo.bik
+#file Movies/GLO_01_Relay.bik
+#file Movies/EndGm1_ArrivalEXT_Part2.bik
+#file Endgm1_Warship_Succ_EXT01.bik

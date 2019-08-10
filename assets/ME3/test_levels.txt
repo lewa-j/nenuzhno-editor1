@@ -1,0 +1,54 @@
+-3.7 2.3 -38.8
+0
+8
+SFXGame.pcc 0
+BioP_Nor.pcc 0
+BioA_Nor.pcc 86
+BioA_Nor_200.pcc 88
+BioA_Nor_204aSecurity.pcc 57
+BioA_Nor_205Bridge.pcc 529
+BioA_Nor_206Airlock.pcc 85
+BioA_Nor_210CIC.pcc 246
+
+630 150 -300
+3
+6
+SFXGame.pcc 0
+BioA_ProEar.pcc 0
+BioA_ProEar_000Skyline.pcc 149
+BioA_ProEar_100.pcc 125
+BioA_ProEar_200.pcc 229
+BioA_ProEar_400.pcc 129
+
+-862 26 282
+0
+3
+BioP_Gth002.pcc 0
+BioA_Gth002_Global.pcc 88
+BioA_Gth002_100.pcc 205
+
+BioA_Gth002_200.pcc 72
+BioA_Gth002_110.pcc 56
+
+8.5 1 -72
+0
+8
+SFXGame.pcc 0
+BioP_Nor.pcc 0
+BioA_Nor.pcc 86
+BioA_Nor_200.pcc 88
+BioA_Nor_204aSecurity.pcc 57
+BioA_Nor_204Conference.pcc 140
+BioA_Nor_204VidCon.pcc 120
+BioA_Nor_204WarRoom.pcc 237
+
+630 150 -300
+0
+6
+SFXGame.pcc 0
+BioA_ProEar.pcc 0
+BioA_ProEar_000Skyline.pcc 149
+BioA_ProEar_100.pcc 125
+BioA_ProEar_200.pcc 229
+BioA_ProEar_400.pcc 129
+

@@ -1,0 +1,34 @@
+ENGINE_DIR = ../nenuzhno-engine_iter1
+PCC_DIR = ME3-Formats
+TARGET := assets/nenuzhno-editor.exe
+LIBS_DIR = ../../../Libs
+
+all: $(TARGET)
+
+INCLUDES = -I$(LIBS_DIR)/gl/glm/glm -I$(LIBS_DIR)/gl/glew-2.0.0/include -I$(LIBS_DIR)/gl/glfw-3.3.bin.WIN32/include -I$(ENGINE_DIR)/src -I$(PCC_DIR)
+LIBS = -lnenuzhno-engine -L$(ENGINE_DIR)/bin -lpcc -lz -L$(PCC_DIR) -lpthread -lglew32 -L$(LIBS_DIR)/gl/glew-2.0.0/lib -lglfw3 -L$(LIBS_DIR)/gl/glfw-3.3.bin.WIN32/lib-mingw-w64 -lOpenAL32  -L$(LIBS_DIR)/OpenAL-soft/libs/Win32 -lopengl32 -lgdi32
+CPPFLAGS = -Wall -ggdb -m32 -std=c++11
+# -DBINK_16BIT=1
+LDFLAGS = -static-libgcc -static-libstdc++ -m32 -ggdb
+SRCS = editor.cpp sound_editor.cpp ModelViewer.cpp ModelEditor.cpp ModelUtils.cpp PCCViewer.cpp LevelRenderer.cpp BinkPlayer.cpp BinkFile.cpp vlc.cpp GraphUtil.cpp dds_export.cpp smd_export.cpp
+OBJS = $(patsubst %.cpp,obj/%.o,$(SRCS))
+
+obj/%.o: %.cpp
+	$(CXX) -c $< -o $@ $(CPPFLAGS) $(INCLUDES)
+
+$(TARGET): $(OBJS) obj $(ENGINE_DIR)/bin/libnenuzhno-engine.a $(PCC_DIR)/libpcc.a
+	$(CXX) -o $@ $(LDFLAGS) $(OBJS) $(LIBS)
+
+clean:
+	del $(subst /,\,$(OBJS))
+
+obj:
+	mkdir obj
+
+obj/editor.o: editor.h
+obj/sound_editor.o: editor.h
+obj/model_editor.o: editor.h
+obj/PCCViewer.o: editor.h PCCViewer.h
+obj/LevelRenderer.o: PCCViewer.h
+obj/BinkPlayer.o: editor.h
+obj/GraphUtil.o: editor.h

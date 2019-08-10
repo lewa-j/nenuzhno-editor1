@@ -1,0 +1,28 @@
+#TARGET = test.exe
+TARGET = libpcc.a
+ENGINE_DIR = ../../nenuzhno-engine_iter1
+LIBS_DIR = ../../../../Libs
+
+all: $(TARGET)
+
+INCLUDES = -I$(ENGINE_DIR)/src -I$(LIBS_DIR)/gl/glew-2.0.0/include -I$(LIBS_DIR)/gl/glm/glm
+LIBS = -lz -lopengl32 -lglew32 -L$(LIBS_DIR)/gl/glew-2.0.0/lib
+CPPFLAGS = -Wall -ggdb -m32 -std=c++11 -DWIN32
+LDFLAGS = -static-libgcc -static-libstdc++ -m32 -ggdb
+SRCS = pcc.cpp PCCSystem.cpp PCCProperties.cpp PCCTexture2D.cpp PCCStaticMesh.cpp PCCSkeletalMesh.cpp PCCAnim.cpp PCCLevel.cpp
+OBJS = $(patsubst %.cpp,obj/%.o,$(SRCS))
+obj/%.o: %.cpp
+	$(CXX) -c $< -o $@ $(CPPFLAGS) $(INCLUDES)
+
+test.exe: $(OBJS) obj/test.o $(ENGINE_DIR)/obj/log.o $(ENGINE_DIR)/obj/file_system.o $(ENGINE_DIR)/obj/renderer/texture.o $(ENGINE_DIR)/obj/renderer/vtf_loader.o $(ENGINE_DIR)/obj/renderer/dds_loader.o $(ENGINE_DIR)/obj/renderer/gl_utils.o
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) obj/test.o $(LIBS)
+
+libpcc.a: $(OBJS)
+	$(AR) rcs $@ $^
+
+obj/pcc.o: PCCSystem.h pcc.h PCCProperties.h MyMembuf.h
+obj/PCCLevel.o: pcc.h PCCLevel.h
+obj/PCCProperties.o: PCCProperties.h MyMembuf.h
+obj/PCCStaticMesh.o: pcc.h PCCStaticMesh.h
+obj/PCCSystem.o: PCCSystem.h
+obj/PCCTexture2D.o: PCCTexture2D.h pcc.h

@@ -1,0 +1,16 @@
+mode 0
+genF 0.0002
+genA 0.5
+genF2 0.55
+genA2 0.0
+is3D 1
+loop 1
+
+#mode 1
+is3D 0
+clipName planets.wav
+#clipName asteroids.wav
+#clipName e1m1_slow_48khz.wav
+zoom 800
+oscSamples 800
+#48000/60
