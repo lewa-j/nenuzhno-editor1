@@ -18,6 +18,7 @@ BinkFile::BinkFile()
 	curFrame=0;
 	codedBuffer=0;
 	planesBuff=0;
+	selectedTrack = 0;
 }
 
 BinkFile::~BinkFile()
@@ -50,19 +51,42 @@ bool BinkFile::Open(const char *fileName)
 		header.fps/=header.fpsDivider;
 		Log("Divided fps %d\n",header.fps);
 	}
+	tracks.resize(header.audioTrackNum);
 	if(header.audioTrackNum){
-		//skip audio
-		int skipSize=12*header.audioTrackNum;
+		uint32_t tbuff[header.audioTrackNum];
 		//for
 		//	4b max decoded size
+		in->read((char*)tbuff,header.audioTrackNum*4);
+		for(uint32_t i=0; i<header.audioTrackNum; i++){
+			tracks[i].maxPacketSize = tbuff[i];
+		}
 		//for
 		//	2b sample_rate
 		//	2b flags
+		struct{
+			uint16_t rate;
+			uint16_t flags;
+		} tr[header.audioTrackNum]={0};
+		in->read((char*)tr,header.audioTrackNum*4);
+		for(uint32_t i=0; i<header.audioTrackNum; i++){
+			tracks[i].rate = tr[i].rate;
+			tracks[i].flags = tr[i].flags;
+		}
 		//for
 		//	4b ids
+		in->read((char*)tbuff,header.audioTrackNum*4);
+		for(uint32_t i=0; i<header.audioTrackNum; i++){
+			tracks[i].id = tbuff[i];
+		}
 		
-		//in->seekg(skipSize,ios::cur);
-		in->seekg(4+sizeof(binkHeader_t)+skipSize);
+		for(size_t i=0; i<tracks.size(); i++){
+			if(i==selectedTrack)
+				InitAudio(tracks[i]);
+			Log("track %d: sr %d f %X ms %d id %d\n",i,tracks[i].rate, tracks[i].flags, tracks[i].maxPacketSize, tracks[i].id);
+		}
+		
+		//int skipSize=12*header.audioTrackNum;
+		//in->seekg(4+sizeof(binkHeader_t)+skipSize);
 	}
 	frameOffsets = new uint32_t[header.frames+1];
 	in->read((char*)frameOffsets,(header.frames+1)*4);
@@ -142,8 +166,10 @@ bool BinkFile::GetNextFrame(char *b, float scaling)
 	//Log("frame size %d\n",frameSize);
 
 	char *t = codedBuffer;
-	for(int i=0;i<header.audioTrackNum;i++){
+	for(uint32_t i=0;i<header.audioTrackNum;i++){
 		uint32_t audioTrackLen = *(uint32_t*)t;
+		if(i==selectedTrack && audioTrackLen)
+			DecodeAudio((uint8_t*)t,tracks[i]);
 		t+=4;
 		//Log("audio track %d lenght: %d\n",i,audioTrackLen);
 		t += audioTrackLen;
@@ -279,18 +305,32 @@ int BitReader::GetBit(){
 	p++;
 	return res;
 }
-int BitReader::GetBits(int n){
+int BitReader::GetBits(int n)
+{
 	register int tmp;
    	unsigned int re_cache = AV_RL32(b+(p>>3))>>(p&7);
 	tmp = zero_extend(re_cache, n);
 	p += n;
 	return tmp;
 }
+float BitReader::GetFloat()
+{
+	int power = GetBits(5);
+    float f = ldexpf(GetBits(23), power - 23);
+    if(GetBit())
+        f = -f;
+    return f;
+}
 uint32_t BitReader::GetBitsCount(){
 	return p;
 }
 void BitReader::SkipBitsLong(int n){
 	p += n;
+}
+void BitReader::Align32()
+{
+    int n = (-GetBitsCount()) & 31;
+    if (n) SkipBitsLong(n);
 }
 int BitReader::GetVlc(int16_t (*table)[2], int bits, int maxDepth){
 	int code;
@@ -342,6 +382,124 @@ void TestBitReader()
 	LOG("%d %d %d\n",br.GetBits(3),br.GetBits(2),br.GetBits(3));
 }
 
+const uint16_t ff_wma_critical_freqs[25] = {
+      100,   200,  300,  400,  510,  630,   770,   920,
+     1080,  1270, 1480, 1720, 2000, 2320,  2700,  3150,
+     3700,  4400, 5300, 6400, 7700, 9500, 12000, 15500,
+    24500,
+};
+
+static const uint8_t rle_length_tab[16] = {
+    2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 32, 64
+};
+
+static float quantTable[96];
+
+void BinkFile::InitAudio(BinkAudioTrack &t)
+{
+	t.channels = t.flags & BINK_AUD_STEREO ? 2:1;
+	
+	int frameLenBits;
+	if (t.rate < 22050){
+        frameLenBits = 9;
+    }else if (t.rate < 44100){
+        frameLenBits = 10;
+    }else{
+        frameLenBits = 11;
+    }
+	t.frameLen = 1 << frameLenBits;
+	//dct
+	t.root = t.frameLen / (sqrt(t.frameLen) * 32768.0);
+	
+	int rateHalf = (t.rate+1) / 2;
+	for(t.bandsCount=1; t.bandsCount<25; t.bandsCount++)
+	{
+		if(rateHalf <= ff_wma_critical_freqs[t.bandsCount-1])
+			break;
+	}
+	
+	for(int i = 0; i < 96; i++){
+		quantTable[i] = expf(i * 0.15289164787221953823f) * t.root;
+    }
+	
+	Log("Bink InitAudio: frameLen %d, root %f, bandsCount %d\n",t.frameLen,t.root,t.bandsCount);
+}
+
+int BinkFile::DecodeAudio(uint8_t *buff, BinkAudioTrack &t)
+{
+	bool useDct = t.flags & BINK_AUD_USEDCT;
+	
+	uint32_t len = *(uint32_t*)buff;
+	buff += 4;
+	uint32_t decLen = *(uint32_t*)buff;
+	//Log("Audio decode. Frame %d. len %d, decoded len %d\n",curFrame,len,decLen);
+	BitReader abr = BitReader(buff, len<<3);
+	
+	abr.SkipBitsLong(32);
+	
+	if(useDct)
+		abr.SkipBitsLong(2);
+	
+	float quant[25];
+	
+	for(int ch=0; ch<t.channels; ch++)
+	{
+		float coeffs[2];
+		//dct
+		coeffs[0] = abr.GetFloat()*t.root;
+		coeffs[1] = abr.GetFloat()*t.root;
+		
+		for(int j=0;j<t.bandsCount;j++)
+		{
+			int v = abr.GetBits(8);
+			quant[j] = quantTable[min(v,95)];
+		}
+		
+		int i=2;
+		while(i < t.frameLen)
+		{
+			int v = abr.GetBit();
+			int j;
+			if(v){
+				v = abr.GetBits(4);
+				j = i+rle_length_tab[v]*8;
+			}else{
+				j = i+8;
+			}
+			
+			j = min(j, t.frameLen);
+			
+			int width = abr.GetBits(4);
+			if(width==0)
+			{
+				i = j;
+				
+			}else{
+				while(i < j)
+				{
+					
+					int coeff = abr.GetBits(width);
+					if(coeff){
+						int v = abr.GetBit();
+						if(v){
+						}else{
+							
+						}
+					}else{
+						
+					}
+					i++;
+				}
+			}
+		}
+	}
+	
+	abr.Align32();
+	if(abr.p>abr.s)
+		Log("Invalid audio block at frame %d, %d/%d bits. coded %d decoded %d\n",curFrame,abr.p,abr.s,len,decLen);
+	
+	return 0;
+}
 void BinkFile::InitBundles()
 {
 	int bw=(header.width+7)>>3;

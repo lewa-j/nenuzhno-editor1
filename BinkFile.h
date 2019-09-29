@@ -5,11 +5,12 @@
 #pragma once
 
 #include <istream>
+#include <vector>
 #include "stdint.h"
 #include "vlc.h"
 
-#define BINK_16BIT 1
-
+#define BINK_AUD_USEDCT 0x1000
+#define BINK_AUD_STEREO 0x2000
 struct binkHeader_t
 {
 	int length;
@@ -21,7 +22,7 @@ struct binkHeader_t
 	int fps;
 	int fpsDivider;
 	int flags;
-	int audioTrackNum;
+	uint32_t audioTrackNum;
 };
 
 enum binkSources {
@@ -73,13 +74,28 @@ public:
 	BitReader(uint8_t *nb, int n);
 	int GetBit();
 	int GetBits(int n);
+	float GetFloat();
 	uint32_t GetBitsCount();
 	void SkipBitsLong(int n);
+	void Align32();
 	int GetVlc(int16_t (*table)[2], int bits, int maxDepth);
 	
 	uint8_t *b;
 	int s;
 	int p;
+};
+
+struct BinkAudioTrack
+{
+	uint32_t maxPacketSize;
+	uint16_t rate;
+	uint16_t flags;
+	uint32_t id;
+	
+	int frameLen;
+	int bandsCount;
+	int channels;
+	float root;
 };
 
 class BinkFile
@@ -91,6 +107,7 @@ public:
 	bool Open(const char *fileName);
 	bool GetNextFrame(char *b, float scaling=1.0f);
 	bool SkipFrames(int i);
+	int DecodeAudio(uint8_t *buff, BinkAudioTrack &t);
 	
 	std::istream *in;
 	char ident[5];
@@ -105,6 +122,10 @@ public:
 	binkTree colHigh[16];
 	int colLastVal;
 	VLC binkTrees[16];
+	
+	std::vector<BinkAudioTrack> tracks;
+	uint32_t selectedTrack;
+	void InitAudio(BinkAudioTrack &t);
 	
 	void InitBundles();
 	void FreeBundles();
