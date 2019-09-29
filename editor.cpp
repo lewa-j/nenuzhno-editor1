@@ -22,6 +22,10 @@ using namespace std;
 #include "game/IGame.h"
 #include "resource/ResourceManager.h"
 
+#ifdef NO_SOUND
+Editor *GetSoundEditor(){return 0;}
+#endif
+
 class EditorGame : public IGame
 {
 public:
